@@ -37,7 +37,13 @@ class Main {
         //输出路径
         String outputDirPath = "/Users/android01/Desktop/Tools/translationsTest";
 
-        List<File> translationsXml = createTranslationsXml(translations, outputDirPath);
+        List<File> translationsXml = null;
+        try {
+            translationsXml = createTranslationsXml(translations, outputDirPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         File file = new File(excelSourcePath);
         Map<String, List<String>> parse = null;
@@ -45,6 +51,7 @@ class Main {
             parse = parseXLS(file, translations, 0);
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
         if (parse != null && !parse.isEmpty()) {
             System.out.println(parse.toString());
@@ -73,20 +80,16 @@ class Main {
         fw.close();
     }
 
-    private static List<File> createTranslationsXml(@NotNull String[] translations, @NotNull String outputDirPath) {
+    private static List<File> createTranslationsXml(@NotNull String[] translations, @NotNull String outputDirPath) throws IOException {
         List<File> files = new ArrayList<>();
         File outDir = new File(outputDirPath);
         if (!outDir.isDirectory()) outDir.mkdirs();
-        try {
             for (int i = 0; i < translations.length; i++) {
                 File file = new File(outDir, translations[i] + ".xml");
                 if (file.exists()) file.delete();
                 file.createNewFile();
                 files.add(file);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return files;
     }
 
