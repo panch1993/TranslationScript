@@ -31,11 +31,11 @@ class Main {
 
     public static void main(String[] args) {
         //翻译源文件路径
-        String excelSourcePath = "/Users/android01/Desktop/Tools/translationsTest.xls";
+        String excelSourcePath = "/Users/android01/Desktop/Tools/mlily.xls";
         //需要的翻译的语言,要与excel文件的列头对应,也是输出文件的文件名
-        String[] translations = {"中文", "英文", "日文"};
+        String[] translations = {/*"中文", "英文", */"中文（繁体）", "德語","法語","西語","日語","韓語"};
         //输出路径
-        String outputDirPath = "/Users/android01/Desktop/Tools/translationsTest";
+        String outputDirPath = "/Users/android01/Desktop/Tools/mlily";
 
         List<File> translationsXml = null;
         try {
@@ -67,6 +67,9 @@ class Main {
                         writeMessage(xml,key,message);
                     }
                 }
+                for (File file1 : translationsXml) {
+                    writeMessage(file1,"</resources>");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,17 +82,23 @@ class Main {
         fw.write(temp);
         fw.close();
     }
+    private static void writeMessage(File file,String message) throws IOException {
+        FileWriter fw = new FileWriter(file, true);
+        fw.write(message);
+        fw.close();
+    }
 
     private static List<File> createTranslationsXml(@NotNull String[] translations, @NotNull String outputDirPath) throws IOException {
         List<File> files = new ArrayList<>();
         File outDir = new File(outputDirPath);
         if (!outDir.isDirectory()) outDir.mkdirs();
-            for (int i = 0; i < translations.length; i++) {
-                File file = new File(outDir, translations[i] + ".xml");
-                if (file.exists()) file.delete();
-                file.createNewFile();
-                files.add(file);
-            }
+        for (String translation : translations) {
+            File file = new File(outDir, translation + ".txt");
+            if (file.exists()) file.delete();
+            file.createNewFile();
+            files.add(file);
+            writeMessage(file,"<resources>\n");
+        }
         return files;
     }
 
@@ -108,9 +117,10 @@ class Main {
         //sheet.getCell(列,行)
         for (int i = 1; i < sheetRows; i++) {
             String keyword = sheet.getCell(0, i).getContents();
+            if (keyword == null||keyword.equals("")) continue;
             List<String> contents = new ArrayList<>();
-            for (int j = 0; j < translationsIndexs.length; j++) {
-                String content = sheet.getCell(translationsIndexs[j], i).getContents();
+            for (int translationsIndex : translationsIndexs) {
+                String content = sheet.getCell(translationsIndex, i).getContents();
                 if (content == null) content = "";
                 contents.add(content);
             }
